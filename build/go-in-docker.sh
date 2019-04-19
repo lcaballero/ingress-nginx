@@ -66,18 +66,26 @@ if [ ! -d ${MINIKUBE_PATH} ]; then
     MINIKUBE_VOLUME=""
 fi
 
-docker run                                       \
-    --tty                                        \
-    --rm                                         \
-    ${DOCKER_OPTS}                               \
-    -v ${HOME}/.kube:/${HOME}/.kube              \
-    -v ${PWD}:/go/src/${PKG}                     \
-    -v ${PWD}/.gocache:${HOME}/.cache/go-build   \
-    -v ${PWD}/bin/${ARCH}:/go/bin/linux_${ARCH}  \
-    ${MINIKUBE_VOLUME}                           \
-    -w /go/src/${PKG}                            \
-    --env-file .env                              \
-    --entrypoint ${FLAGS}                        \
+tee command  << EOF
+printf "Building nginx-ingress\n"
+
+docker run                                       \\
+    --tty                                        \\
+    --rm                                         \\
+    -v ${HOME}/.kube:${HOME}/.kube               \\
+    -v ${PWD}:/go/src/${PKG}                     \\
+    -v ${PWD}/.gocache:${HOME}/.cache/go-build   \\
+    -v ${PWD}/bin/${ARCH}:/go/bin/linux_${ARCH}  \\
+    ${MINIKUBE_VOLUME}                           \\
+    -w /go/src/${PKG}                            \\
+    --env-file .env                              \\
+    --entrypoint ${FLAGS}                        \\
     ${E2E_IMAGE}
 
+
+ls -al bin/${ARCH}/
 rm .env
+rm ./command
+EOF
+
+#bash command
